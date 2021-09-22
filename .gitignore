@@ -65,3 +65,9 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+grizli/CONF/
+
+grizli/iref/
+
+grizli/jref/
