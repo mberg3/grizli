@@ -13,7 +13,7 @@ import astropy.io.fits as pyfits
 import astropy.wcs as pywcs
 
 from .. import prep, utils
-from .default_params import UV_N_FILTERS, UV_M_FILTERS, UV_W_FILTERS
+from .default_params import UV_N_FILTERS, UV_M_FILTERS, UV_W_FILTERS, UV_X_FILTERS
 from .default_params import OPT_N_FILTERS, OPT_M_FILTERS, OPT_W_FILTERS
 from .default_params import IR_N_FILTERS, IR_M_FILTERS, IR_W_FILTERS
 from .default_params import ALL_IMAGING_FILTERS, VALID_FILTERS
@@ -2032,7 +2032,7 @@ def multiband_catalog(field_root='j142724+334246', threshold=1.8, detection_back
     return tab
 
 
-def count_grism_exposures(phot, groups, grisms=['g800l', 'g102', 'g141'], reset=True, verbose=False):
+def count_grism_exposures(phot, groups, grisms=['g800l', 'g102', 'g141','g280'], reset=True, verbose=False):
     """
     Count number of grism exposures that contain objects in a catalog
     """
@@ -2208,6 +2208,7 @@ def load_GroupFLT(field_root='j142724+334246', PREP_PATH='../Prep', force_ref=No
 
     g141 = info['FILTER'] == 'G141'
     g102 = info['FILTER'] == 'G102'
+    g280 = info['FILTER'] == 'G280'
     g800l = info['FILTER'] == 'G800L'
 
     if force_cat is None:
@@ -2290,6 +2291,39 @@ def load_GroupFLT(field_root='j142724+334246', PREP_PATH='../Prep', force_ref=No
         grp_objects.append(grp_i)
 
         # del(grp_i)
+
+    if (g280.sum() > 0) & ('G280' in gris_ref_filters):
+        for f in gris_ref_filters['G280']:
+            if os.path.exists('{0}-{1}_drz_sci.fits'.format(field_root, f.lower())):
+                g280_ref = f
+                break
+
+        # Segmentation image
+        if force_seg is None:
+            if galfit == 'clean':
+                seg_file = '{0}-{1}_galfit_orig_seg.fits'.format(field_root, g280_ref.lower())
+            elif galfit == 'model':
+                seg_file = '{0}-{1}_galfit_seg.fits'.format(field_root, g280_ref.lower())
+            else:
+                seg_file = glob.glob('{0}-*_seg.fits'.format(field_root))[0]
+        else:
+            seg_file = force_seg
+
+        # Reference image
+        if force_ref is None:
+            if galfit == 'clean':
+                ref_file = '{0}-{1}_galfit_clean.fits'.format(field_root, g280_ref.lower())
+            elif galfit == 'model':
+                ref_file = '{0}-{1}_galfit.fits'.format(field_root, g280_ref.lower())
+            else:
+                ref_file = '{0}-{1}_drz_sci.fits'.format(field_root, g280_ref.lower())
+
+        else:
+            ref_file = force_ref
+
+        grp_ii = multifit.GroupFLT(grism_files=list(info['FILE'][g280]), direct_files=[], ref_file=ref_file, seg_file=seg_file, catalog=catalog, cpu_count=-1, sci_extn=1, pad=pad)
+
+        grp_objects.append(grp_ii)
 
     # ACS
     if (g800l.sum() > 0) & ('G800L' in gris_ref_filters):
@@ -3215,7 +3249,7 @@ def update_wcs_headers_with_fine(field_root, backup=True):
                                                 xyscale=trans[j, :])
 
 
-def make_reference_wcs(info, files=None, output='mosaic_wcs-ref.fits', filters=['G800L', 'G102', 'G141'], pad_reference=90, pixel_scale=None, get_hdu=True):
+def make_reference_wcs(info, files=None, output='mosaic_wcs-ref.fits', filters=['G800L', 'G102', 'G141', 'G280'], pad_reference=90, pixel_scale=None, get_hdu=True):
     """
     Make a reference image WCS based on the grism exposures
 
@@ -3264,7 +3298,7 @@ def make_reference_wcs(info, files=None, output='mosaic_wcs-ref.fits', filters=[
     if pixel_scale is None:
         # Auto determine pixel size, 0.03" pixels if only ACS, otherwise 0.06
         any_grism = utils.column_values_in_list(info['FILTER'],
-                                                  ['G800L', 'G102', 'G141'])
+                                                  ['G800L', 'G102', 'G141', 'G280'])
         acs_grism = (info['FILTER'] == 'G800L')
         only_acs = list(np.unique(info['INSTRUME'])) == ['ACS']
         
@@ -3706,7 +3740,7 @@ def make_combined_mosaics(root, fix_stars=False, mask_spikes=False, skip_single_
         if fill_mosaics == 'grism':
             # Only fill mosaics if grism filters exist
             has_grism = utils.column_string_operation(info['FILTER'],
-                                     ['G141', 'G102', 'G800L'],
+                                     ['G141', 'G102', 'G800L', 'G280'],
                                      'count', 'or').sum() > 0
             if has_grism:
                 fill_filter_mosaics(root)
