@@ -1,0 +1,1 @@
+/Users/michelle/Dropbox/Michelle/python_procedures/grizli/grizli/data/templates/quasar_lines.txt

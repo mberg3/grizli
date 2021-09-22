@@ -827,7 +827,8 @@ def parse_visit_overlaps(visits, buffer=15.):
 
 DIRECT_ORDER = {'G102': ['F105W', 'F110W', 'F098M', 'F125W', 'F140W', 'F160W', 'F127M', 'F139M', 'F153M', 'F132N', 'F130N', 'F128N', 'F126N', 'F164N', 'F167N'],
                 'G141': ['F140W', 'F160W', 'F125W', 'F105W', 'F110W', 'F098M', 'F127M', 'F139M', 'F153M', 'F132N', 'F130N', 'F128N', 'F126N', 'F164N', 'F167N'],
-                'G800L': ['F814W', 'F606W', 'F850LP', 'F775W', 'F435W', 'F105W', 'F110W', 'F098M', 'F125W', 'F140W', 'F160W', 'F127M', 'F139M', 'F153M', 'F132N', 'F130N', 'F128N', 'F126N', 'F164N', 'F167N']}
+                'G800L': ['F814W', 'F606W', 'F850LP', 'F775W', 'F435W', 'F105W', 'F110W', 'F098M', 'F125W', 'F140W', 'F160W', 'F127M', 'F139M', 'F153M', 'F132N', 'F130N', 'F128N', 'F126N', 'F164N', 'F167N'],
+                'G280': ['F300X']}
 
 
 def parse_grism_associations(exposure_groups,
@@ -1021,7 +1022,8 @@ def tabulate_encircled_energy(aper_radii=EE_RADII, norm_radius=4.0):
         for f in (default_params.OPT_M_FILTERS + 
                   default_params.OPT_W_FILTERS + 
                   default_params.UV_M_FILTERS + 
-                  default_params.UV_W_FILTERS):
+                  default_params.UV_W_FILTERS +
+                  default_params.UV_X_FILTERS):
 
             obsmode = inst+f.lower()
 
@@ -5438,6 +5440,7 @@ For example,
              'iref$uc721143i_pfl.fits',  # F140W flat
              'iref$u4m1335li_pfl.fits',  # G102 flat
              'iref$u4m1335mi_pfl.fits',  # G141 flat
+             'iref$zcv2053ei_pfl.fits',  # F200LP flat for G280 (see prep.py)
              'iref$w3m18525i_idc.fits',  # IDCTAB distortion table}
              ]
 
@@ -5534,7 +5537,7 @@ def fetch_wfpc2_calib(file='g6q1912hu_r4f.fits', path=os.getenv('uref'), use_mas
             return True
 
 
-def fetch_config_files(ACS=False, get_sky=True, get_stars=True, get_epsf=True):
+def fetch_config_files(ACS=False, get_uvis=True, get_sky=True, get_stars=True, get_epsf=True):
     """
     Config files needed for Grizli
     """
@@ -5552,7 +5555,7 @@ def fetch_config_files(ACS=False, get_sky=True, get_stars=True, get_epsf=True):
     tarfiles = ['https://s3.amazonaws.com/grizli/CONF/WFC3.IR.G102.WD.V4.32.tar.gz', 'https://s3.amazonaws.com/grizli/CONF/WFC3.IR.G141.WD.V4.32.tar.gz']
 
     tarfiles += ['https://s3.amazonaws.com/grizli/CONF/ACS.WFC.CHIP1.Stars.conf', 'https://s3.amazonaws.com/grizli/CONF/ACS.WFC.CHIP2.Stars.conf']
-    
+        
     if get_sky:
         ftpdir = 'https://s3.amazonaws.com/grizli/CONF'
         tarfiles.append('{0}/grism_master_sky_v0.5.tar.gz'.format(ftpdir))
@@ -5571,6 +5574,16 @@ def fetch_config_files(ACS=False, get_sky=True, get_stars=True, get_epsf=True):
             print('Get {0}'.format(file))
             os.system('curl -o {0} {1}'.format(file, url))
 
+        if '.tar' in file:
+            os.system('tar xzvf {0}'.format(file))
+
+    if get_uvis:
+        url = 'http://www.stsci.edu/~WFC3/grism-resources/WFC3.UVIS.G280.cal.tar.gz'
+        file = os.path.basename(url)
+        if not os.path.exists(file):
+            print('Get {0}'.format(file))
+            os.system('curl -OL {0}'.format(url))
+        
         if '.tar' in file:
             os.system('tar xzvf {0}'.format(file))
 

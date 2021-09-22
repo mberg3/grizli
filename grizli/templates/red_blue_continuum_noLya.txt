@@ -1,0 +1,1 @@
+/Users/michelle/Dropbox/Michelle/python_procedures/grizli/grizli/data/templates/red_blue_continuum_noLya.txt
