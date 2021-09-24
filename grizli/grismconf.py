@@ -478,7 +478,7 @@ def get_config_filename(instrume='WFC3', filter='F140W',
         Grism name.  Valid combinations are the following:
 
             ACS : G800L (assumed)
-            WFC3 : G102, G141
+            WFC3 : G102, G141, G280
             NIRISS : GR150R, GR150C
             NIRCam : F322W2, F356W, F430M, F444W, F460M
             WFIRST : (basic assumptions about the WFI grism)
@@ -510,7 +510,8 @@ def get_config_filename(instrume='WFC3', filter='F140W',
 
     if instrume == 'WFC3':
         if grism == 'G280':
-            conf_file = os.path.join(GRIZLI_PATH, 'CONF/G280/',
+            #conf_file = os.path.join(GRIZLI_PATH, 'CONF/G280/',
+            conf_file = os.path.join(GRIZLI_PATH, 'CONF/',
          'WFC3.UVIS.G280.cal/WFC3.UVIS.G280.CHIP{0:d}.V2.0.conf'.format(chip))
 
             return conf_file
