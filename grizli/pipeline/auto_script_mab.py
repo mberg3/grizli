@@ -1,5 +1,5 @@
 """
-Automatic processing scripts for grizli
+Automatic processing scripts for grizli for UVIS
 """
 import os
 import inspect
@@ -7,6 +7,7 @@ import traceback
 import glob
 import time
 import warnings
+import pdb
 
 import numpy as np
 import astropy.io.fits as pyfits
@@ -444,6 +445,8 @@ def go(root='j010311+131615',
     # Alignment catalogs
     #catalogs = ['PS1','SDSS','GAIA','WISE']
 
+    pdb.set_trace()
+
     #######################
     # Manual alignment
     if manual_alignment:
@@ -682,6 +685,8 @@ def go(root='j010311+131615',
 
         utils.LOGFILE = '/tmp/grizli.log'
         return True
+
+    pdb.set_trace()
 
     ######################
     # Grism prep

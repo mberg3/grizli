@@ -179,7 +179,6 @@ mask_spikes: False
 # (mosaic_driz_cr_type & 8) : flag CRs on OPT filter combinations
 # (mosaic_driz_cr_type & 3) : flag CRs on all UV combined
 # (mosaic_driz_cr_type & 5) : flag CRs on UV filter combinations
-
 mosaic_driz_cr_type: 0
 
 # Multiband photometric catalog
