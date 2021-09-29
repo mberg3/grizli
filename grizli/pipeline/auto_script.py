@@ -3573,6 +3573,8 @@ def make_combined_mosaics(root, fix_stars=False, mask_spikes=False, skip_single_
         (mosaic_driz_cr_type & 2) : flag CRs on IR filter combinations
         (mosaic_driz_cr_type & 4) : flag CRs on all OPT combined
         (mosaic_driz_cr_type & 8) : flag CRs on OPT filter combinations
+        (mosaic_driz_cr_type & 3) : flag CRs on all UV combined
+        (mosaic_driz_cr_type & 5) : flag CRs on UV filter combinations
     """
 
     # if False:
@@ -3732,6 +3734,18 @@ def make_combined_mosaics(root, fix_stars=False, mask_spikes=False, skip_single_
 
     make_filter_combinations(root, weight_fnu=True, min_count=1,
         filter_combinations={make_combined_label: OPT_M_FILTERS+OPT_W_FILTERS})
+
+    #adding in UV filters
+    drizzle_overlaps(root, filters=mosaic_args['uv_filters'],
+        pixfrac=mosaic_pixfrac, make_combined=False,
+        ref_image=wcs_ref_optical,
+        min_nexp=1,
+        multi_driz_cr=(mosaic_driz_cr_type & 3) > 0,
+        filter_driz_cr=(mosaic_driz_cr_type & 5) > 0,
+        **mosaic_drizzle_args)
+
+    make_filter_combinations(root, weight_fnu=True, min_count=1,
+        filter_combinations={make_combined_label: UV_X_FILTERS})
 
     # Fill IR filter mosaics with scaled combined data so they can be used
     # as grism reference

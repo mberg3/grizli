@@ -143,6 +143,8 @@ mosaic_args:
         [F814W, F606W, F435W, F850LP, F702W, F555W, F438W, F475W, F625W,
           F775W, F225W, F275W, F300W, F390W, F350LP, F200LP, F410M, F450W,
           F600LP, F475X, F435W]
+    uv_filters:
+        [F300X]
     fill_mosaics: grism 
     half_optical_pixscale: False 
     mosaic_pixfrac: 0.75 
@@ -153,7 +155,7 @@ mosaic_args:
             F350LP, F390W, F435W, F438W, F439W, F450W, F475W, F475X, F555W,
             F569W, F600LP, F606W, F622W, F625W, F675W, F702W, F775W, F791W,
             F814W, F850LP, G800L, F098M, F127M, F139M, F153M, F105W, F110W,
-            F125W, F140W, F160W, G102, G141, F600LP, F475X]
+            F125W, F140W, F160W, G102, G141, F600LP, F475X, G280, F300X]
         pixel_scale: null 
 
 # Extra args to pass to mosaic drizzler
@@ -175,6 +177,9 @@ mask_spikes: False
 # (mosaic_driz_cr_type & 2) : flag CRs on IR filter combinations
 # (mosaic_driz_cr_type & 4) : flag CRs on all OPT combined
 # (mosaic_driz_cr_type & 8) : flag CRs on OPT filter combinations
+# (mosaic_driz_cr_type & 3) : flag CRs on all UV combined
+# (mosaic_driz_cr_type & 5) : flag CRs on UV filter combinations
+
 mosaic_driz_cr_type: 0
 
 # Multiband photometric catalog
