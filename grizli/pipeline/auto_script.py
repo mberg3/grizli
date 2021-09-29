@@ -438,7 +438,7 @@ def go(root='j010311+131615',
 
     visits, all_groups, info = parsed
     run_has_grism = utils.column_string_operation(info['FILTER'],
-                                                ['G141', 'G102', 'G800L'],
+                                                ['G141', 'G102', 'G800L', 'G280'],
                                               'count', 'or').sum()
 
     # Alignment catalogs
