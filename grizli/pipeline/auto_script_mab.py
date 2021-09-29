@@ -343,8 +343,8 @@ def go(root='j010311+131615',
         from .. import multifit
         from . import auto_script
     except:
-        from grizli import multifit
-        from grizli.pipeline import auto_script
+        from grizli.grizli import multifit
+        from grizli.grizli.pipeline import auto_script
 
     # #import grizli.utils
     import matplotlib.pyplot as plt
