@@ -299,6 +299,8 @@ def go(root='j010311+131615',
         Magnitude limits of objects to extract and fit.
 
     """
+    
+    fetch_file_args=None
 
     # Function defaults
     if get_dict:
@@ -445,8 +447,6 @@ def go(root='j010311+131615',
     # Alignment catalogs
     #catalogs = ['PS1','SDSS','GAIA','WISE']
 
-    pdb.set_trace()
-
     #######################
     # Manual alignment
     if manual_alignment:
@@ -494,6 +494,8 @@ def go(root='j010311+131615',
             if os.path.exists(pfile):
                 prep.apply_persistence_mask(file, path=PATHS['persist'],
                                             **persistence_args)
+
+    pdb.set_trace()
 
     ##########
     # Fine alignment
@@ -592,7 +594,7 @@ def go(root='j010311+131615',
 
     # Update the visits file with the new exposure footprints
     print('Update exposure footprints in {0}_visits.npy'.format(root))
-    get_visit_exposure_footprints(visit_file='{0}_visits.npy'.format(root),
+    auto_script.get_visit_exposure_footprints(visit_file='{0}_visits.npy'.format(root),
                                   check_paths=['./', PATHS['raw'], '../RAW'])
 
     # Make combined mosaics

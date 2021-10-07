@@ -20,6 +20,7 @@ from .default_params import ALL_IMAGING_FILTERS, VALID_FILTERS
 from .default_params import UV_GRISMS, OPT_GRISMS, IR_GRISMS, GRIS_REF_FILTERS
 
 from .default_params import get_yml_parameters, write_params_to_yml
+import pdb
 
 # needed for function definitions
 args = get_yml_parameters()
@@ -1472,6 +1473,7 @@ def preprocess(field_root='j142724+334246',  HOME_PATH='/Volumes/Pegasus/Grizli/
     # else:
     #     visit_table = None
 
+    #processing for multiple groupings e.g., more than 1 filter/grism
     for i in range(len(all_groups)):
         direct = all_groups[i]['direct']
         grism = all_groups[i]['grism']
@@ -1654,7 +1656,7 @@ def preprocess(field_root='j142724+334246',  HOME_PATH='/Volumes/Pegasus/Grizli/
             fp = open('%s.failed' % (direct['product']), 'w')
             fp.write('\n')
             fp.close()
-
+    
     ###################################
     # WFC3/IR Satellite trails
     if False:

@@ -5440,7 +5440,8 @@ For example,
              'iref$uc721143i_pfl.fits',  # F140W flat
              'iref$u4m1335li_pfl.fits',  # G102 flat
              'iref$u4m1335mi_pfl.fits',  # G141 flat
-             'iref$zcv2053ei_pfl.fits',  # F200LP flat for G280 (see prep.py), this is much newer than the G280 flat https://hst-crds.stsci.edu
+             'iref$zcv2053ji_pfl.fits',  # F300X flat
+             'iref$t8v14566i_pfl.fits',  # G280 flat
              'iref$w3m18525i_idc.fits',  # IDCTAB distortion table}
              ]
 

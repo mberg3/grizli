@@ -26,6 +26,7 @@ from . import GRIZLI_PATH
 
 # Catalog table tools now put elsewhere
 from .catalog import *
+import pdb
 
 def check_status():
     """Make sure all files and modules are in place and print some information if they're not
@@ -168,12 +169,11 @@ def fresh_flt_file(file, preserve_dq=False, path='../RAW/', verbose=True, extra_
         #     if 'GSKY001' in orig_file:
 
     if filter == 'G280':
-        # Use F200LP flat
-        flat_files = {'G280': 'zcv2053ei_pfl.fits'}  # F200LP
+        flat_files = {'G280': 't8v14566i_pfl.fits'}
         flat_file = flat_files[filter]
         extra_msg = ' / flat: {0}'.format(flat_file)
 
-        flat_im = pyfits.open(os.path.join(os.getenv('jref'), flat_file))
+        flat_im = pyfits.open(os.path.join(os.getenv('iref'), flat_file))
 
         for ext in [1, 2]:
             flat = flat_im['SCI', ext].data
