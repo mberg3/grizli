@@ -869,6 +869,8 @@ def align_drizzled_image(root='',
     else:
         ok &= cat['MAGERR_AUTO'] < 0.05
 
+    pdb.set_trace()
+
     if ok.sum() == 0:
         print('{0}.cat: no objects found in magnitude range {1}'.format(root,
                                                                  mag_limits))
@@ -910,6 +912,8 @@ def align_drizzled_image(root='',
 
     ref_cut = (ref_x > -ref_border) & (ref_x < nx1+ref_border)
     ref_cut &= (ref_y > -ref_border) & (ref_y < nx2+ref_border)
+
+    pdb.set_trace()
 
     if ref_cut.sum() == 0:
         print(f'{root}: no reference objects found in the DRZ footprint')
@@ -1563,6 +1567,8 @@ def make_SEP_catalog(root='',
 
     # Get AB zeropoint
     ZP = utils.calc_header_zeropoint(im, ext=0)
+
+    pdb.set_trace() #ZP is inf an drz_photplam is 0.0
 
     logstr = 'sep: Image AB zeropoint =  {0:.3f}'.format(ZP)
     utils.log_comment(utils.LOGFILE, logstr, verbose=verbose, show_date=True)
@@ -3094,6 +3100,8 @@ def process_direct_grism_visit(direct={}, grism={}, radec=None,
         #cat = make_drz_catalog(root=direct['product'], threshold=thresh)
         cat = make_SEP_catalog(root=direct['product'], threshold=thresh)
 
+        #all objects are giving inf as mag_auto so its kicking back FALSE in align_drizzled_images
+
         if radec == 'self':
             okmag = ((cat['MAG_AUTO'] > align_mag_limits[0]) &
                     (cat['MAG_AUTO'] < align_mag_limits[1]))
@@ -3127,6 +3135,7 @@ def process_direct_grism_visit(direct={}, grism={}, radec=None,
                                       triangle_ba_max=align_triangle_ba_max,
                                 match_catalog_density=match_catalog_density,
                                       ref_border=align_ref_border)
+            pdb.set_trace()
         except:
 
             utils.log_exception(utils.LOGFILE, traceback)
