@@ -1126,6 +1126,8 @@ def update_wcs_fits_log(file, wcs_ref, xyscale=[0, 0, 0, 1], initialize=True, re
     else:
         hdu = pyfits.HDUList([pyfits.PrimaryHDU()])
 
+    #pdb.set_trace()
+
     hdu.append(new_hdu)
     hdu.writeto(wcs_logfile, overwrite=True, output_verify='fix')
 
@@ -3156,7 +3158,6 @@ def process_direct_grism_visit(direct={}, grism={}, radec=None,
         # Update direct FLT WCS
         for file in direct['files']:
             xyscale = [out_shift[0], out_shift[1], out_rot, out_scale]
-
             update_wcs_fits_log(file, orig_wcs,
                                 xyscale=xyscale,
                                 initialize=False,
@@ -3265,8 +3266,6 @@ def process_direct_grism_visit(direct={}, grism={}, radec=None,
             fix_star_centers(root=direct['product'], drizzle=False, 
                              mag_lim=19.5)
 
-    pdb.set_trace()
-
     #################
     # Grism image processing
     #################
@@ -3289,12 +3288,14 @@ def process_direct_grism_visit(direct={}, grism={}, radec=None,
                  resetbits=4096, build=False, final_wht_type='IVM')
 
     # Subtract grism sky
-    status = visit_grism_sky(grism=grism, apply=True, sky_iter=sky_iter,
+    #there is no sky file for UVIS/G280 (don't need to worry about contamination)
+    if grism['product'].split('-')[-1] != 'g280':
+        status = visit_grism_sky(grism=grism, apply=True, sky_iter=sky_iter,
                           column_average=column_average, verbose=True, ext=1,
                           iter_atol=iter_atol)
 
     # Run on second chip (also for UVIS/G280)
-    if isACS:
+    if isACS & (grism['product'].split('-')[-1] != 'g280'):
         visit_grism_sky(grism=grism, apply=True, sky_iter=sky_iter,
                         column_average=column_average, verbose=True, ext=2,
                         iter_atol=iter_atol)
@@ -3416,7 +3417,6 @@ def tweak_align(direct_group={}, grism_group={}, max_dist=1., n_min=10, key=' ',
     wcs_ref, shift_dict = tweak_flt(files=direct_group['files'],
                                     max_dist=max_dist, threshold=threshold,
                                     verbose=True)
-
     grism_matches = find_direct_grism_pairs(direct=direct_group, grism=grism_group, check_pixel=[507, 507], toler=0.1, key=key)
     logstr = '\ngrism_matches = {0}\n'.format(grism_matches)
     utils.log_comment(utils.LOGFILE, logstr, verbose=True)
@@ -3915,6 +3915,7 @@ def apply_tweak_shifts(wcs_ref, shift_dict, grism_matches={}, verbose=True, log=
                 im[0].header['MJD-OBS'] = im[0].header['EXPSTART']
                 im.flush()
 
+
     os.remove(tweak_file)
 
 
@@ -4187,11 +4188,12 @@ def visit_grism_sky(grism={}, apply=True, column_average=True, verbose=True, ext
         bg_vary = ['excess_G102_clean.fits']
         isACS = False
 
-    elif grism_element == 'G280':
-        bg_fixed = ['UVIS.G280.flat.fits']
-        bg_vary = ['UVIS.G280.ext{0:d}.sky.fits'.format(ext)]
-        isACS = True
-        flat = 1.
+    # we do not have to worry about background subtraction for G280 and I don't have these files
+    #elif grism_element == 'G280':
+    #    bg_fixed = ['UVIS.G280.flat.fits']
+    #    bg_vary = ['UVIS.G280.ext{0:d}.sky.fits'.format(ext)]
+    #    isACS = True
+    #    flat = 1.
 
     elif grism_element == 'G800L':
         bg_fixed = ['ACS.WFC.CHIP{0:d}.msky.1.smooth.fits'.format({1: 2, 2: 1}[ext])]

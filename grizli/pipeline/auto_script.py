@@ -1110,7 +1110,7 @@ def remove_bad_expflag(field_root='', HOME_PATH='./', min_bad=2):
             os.system('mv {0}* Expflag/'.format(visit))
 
 
-def parse_visits(field_root='', RAW_PATH='../RAW', use_visit=True, combine_same_pa=True, combine_minexp=2, is_dash=False, filters=VALID_FILTERS, max_dt=1e9):
+def parse_visits(field_root='', RAW_PATH='../RAW', use_visit=True, combine_same_pa=True, combine_minexp=2, is_dash=False, filters=VALID_FILTERS, max_dt=1e9, uniquename=True):
     """
 
     Try to combine visits at the same PA/filter with fewer than
@@ -1183,13 +1183,12 @@ def parse_visits(field_root='', RAW_PATH='../RAW', use_visit=True, combine_same_
                 
         return visits, all_groups, info
 
-    visits, filters = utils.parse_flt_files(info=info, uniquename=True, get_footprint=True, use_visit=use_visit, max_dt=max_dt)
+    visits, filters = utils.parse_flt_files(info=info, uniquename=uniquename, get_footprint=True, use_visit=use_visit, max_dt=max_dt)
 
     # Don't run combine_minexp if have grism exposures
     grisms = ['G141', 'G102', 'G800L', 'G280']
     has_grism = utils.column_string_operation(info['FILTER'], grisms,
                                               'count', 'or').sum()
-
     if combine_same_pa:
         combined = {}
         for visit in visits:
@@ -1258,6 +1257,8 @@ def parse_visits(field_root='', RAW_PATH='../RAW', use_visit=True, combine_same_
             print('{0} {1} {2}'.format(i, visit['product'], len(visit['files'])))
 
     all_groups = utils.parse_grism_associations(visits)
+
+    pdb.set_trace()
 
     print('\n == Grism groups ==\n')
     valid_groups = []

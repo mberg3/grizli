@@ -15,6 +15,7 @@ import numpy as np
 import astropy.units as u
 
 from . import GRIZLI_PATH
+import pdb
 
 KMS = u.km/u.s
 FLAMBDA_CGS = u.erg/u.s/u.cm**2/u.angstrom
@@ -852,6 +853,7 @@ def parse_grism_associations(exposure_groups,
         List of dictionaries with associated 'direct' and 'grism' entries.
 
     """
+        
     N = len(exposure_groups)
 
     grism_groups = []
@@ -882,6 +884,7 @@ def parse_grism_associations(exposure_groups,
 
             #print(root_j, root_i, root_j == root_i)
             if (root_j == root_i):
+            #if (root_j == root_i) | (f_i == 'g280'):  #for some reason I think our files are labelled wrong. Will need to manually pass them
                 # if (group['direct'] is not None):
                 #     pass
                 #     if (group['direct']['product'].startswith(root_i)) & (d_i.upper() == best_direct[f_i.upper()]):
@@ -896,6 +899,7 @@ def parse_grism_associations(exposure_groups,
                     group['direct'] = exposure_groups[j]
                     olap_i = olap.area
                     d_i = f_j
+
                 #print(0,group['grism']['product'], group['direct']['product'])
             #     continue
 

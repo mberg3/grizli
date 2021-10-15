@@ -444,6 +444,8 @@ def go(root='j010311+131615',
                                                 ['G141', 'G102', 'G800L', 'G280'],
                                               'count', 'or').sum()
 
+    pdb.set_trace()
+
     # Alignment catalogs
     #catalogs = ['PS1','SDSS','GAIA','WISE']
 
