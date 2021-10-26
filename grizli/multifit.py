@@ -26,10 +26,10 @@ from .fitting import GroupFitter
 from .utils_c import interp
 
 from .utils import GRISM_COLORS, GRISM_MAJOR, GRISM_LIMITS, DEFAULT_LINE_LIST
-
+import pdb
 
 def _loadFLT(grism_file, sci_extn, direct_file, pad, ref_file,
-               ref_ext, seg_file, verbose, catalog, ix):
+               ref_ext, seg_file, shrink_segimage, verbose, catalog, ix):
     """Helper function for loading `.model.GrismFLT` objects with `multiprocessing`.
 
     TBD
@@ -77,7 +77,7 @@ def _loadFLT(grism_file, sci_extn, direct_file, pad, ref_file,
         flt = model.GrismFLT(grism_file=grism_file, sci_extn=sci_extn,
                          direct_file=direct_file, pad=pad,
                          ref_file=ref_file, ref_ext=ref_ext,
-                         seg_file=seg_file, shrink_segimage=True,
+                         seg_file=seg_file, shrink_segimage=shrink_segimage,
                          verbose=verbose)
 
     if flt.direct.wcs.wcs.has_pc():
@@ -289,10 +289,10 @@ class GroupFLT():
         else:
             # Read files in parallel
             t0_pool = time.time()
-
+            
             pool = mp.Pool(processes=cpu_count)
-            results = [pool.apply_async(_loadFLT, (self.grism_files[i], sci_extn, self.direct_files[i], pad, ref_file, ref_ext, seg_file, verbose, self.catalog, i)) for i in range(N)]
-
+            results = [pool.apply_async(_loadFLT, (self.grism_files[i], sci_extn, self.direct_files[i], pad, ref_file, ref_ext, seg_file, shrink_segimage, verbose, self.catalog, i)) for i in range(N)]
+            
             pool.close()
             pool.join()
 

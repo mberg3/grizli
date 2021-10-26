@@ -516,8 +516,8 @@ def get_config_filename(instrume='WFC3', filter='F140W',
 
             return conf_file
 
-        conf_file = os.path.join(GRIZLI_PATH,
-                                 'CONF/{0}.{1}.V4.32.conf'.format(grism, filter))
+        #conf_file = os.path.join(GRIZLI_PATH,
+        #                         'CONF/{0}.{1}.V4.32.conf'.format(grism, filter))
 
         # When direct + grism combination not found for WFC3 assume F140W
         if not os.path.exists(conf_file):

@@ -22,6 +22,7 @@ from . import utils
 # from .utils_c import disperse
 # from .utils_c import interp
 from . import GRIZLI_PATH
+import pdb
 
 # Would prefer 'nearest' but that occasionally segment faults out
 SEGMENTATION_INTERP = 'nearest'
@@ -1879,7 +1880,7 @@ class ImageData(object):
         ymi = np.maximum(0, yref.min())
         yma = np.minimum(ref_naxis[1], yref.max())
         sly = slice(ymi, yma)
-
+        
         if ((xref.min() < 0) | (yref.min() < 0) |
              (xref.max() > ref_naxis[0]) | (yref.max() > ref_naxis[1])):
             if verbose:
@@ -2591,7 +2592,7 @@ class GrismFLT(object):
             ref_hdu = ref_im[ref_ext]
         
         refh = ref_hdu.header
-            
+        
         if shrink_segimage:
             ref_hdu = self.direct.shrink_large_hdu(ref_hdu, extra=self.pad,
                                                    verbose=True)
@@ -3968,7 +3969,7 @@ class BeamCutout(object):
         self.id = beam.id
         if conf is None:
             conf = grismconf.load_grism_config(flt.conf_file)
-
+        
         self.beam = GrismDisperser(id=beam.id, direct=beam.direct*1,
                            segmentation=beam.seg*1, origin=beam.origin,
                            pad=beam.pad, grow=beam.grow,
