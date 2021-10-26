@@ -8,6 +8,7 @@ import os
 import numpy as np
 
 from . import GRIZLI_PATH
+import pdb
 
 
 class aXeConf():
@@ -514,7 +515,7 @@ def get_config_filename(instrume='WFC3', filter='F140W',
             conf_file = os.path.join(GRIZLI_PATH, 'CONF/',
          'WFC3.UVIS.G280.cal/WFC3.UVIS.G280.CHIP{0:d}.V2.0.conf'.format(chip))
 
-            return conf_file
+            #return conf_file
 
         #conf_file = os.path.join(GRIZLI_PATH,
         #                         'CONF/{0}.{1}.V4.32.conf'.format(grism, filter))

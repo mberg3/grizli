@@ -2464,12 +2464,12 @@ class GrismFLT(object):
             self.pad = self.grism.pad
         else:
             self.pad = pad
-
+        
         if (self.grism is None) & (self.direct is not None):
             self.grism = ImageData(hdulist=direct_im, sci_extn=sci_extn)
             self.grism_file = self.direct_file
             self.grism.filter = force_grism
-
+        
         # Grism exposure only, assumes will get reference from ref_file
         if (self.direct is None) & (self.grism is not None):
             self.direct = ImageData(hdulist=grism_im, sci_extn=sci_extn)
@@ -2523,7 +2523,7 @@ class GrismFLT(object):
         self.process_ref_file(ref_file, ref_ext=ref_ext,
                               shrink_segimage=shrink_segimage,
                               verbose=verbose)
-
+        pdb.set_trace()
         # Blot segmentation image
         self.process_seg_file(seg_file, shrink_segimage=shrink_segimage,
                               verbose=verbose)
