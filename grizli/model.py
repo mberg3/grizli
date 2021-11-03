@@ -2922,9 +2922,12 @@ class GrismFLT(object):
                     size += 4
 
                     # Enforce minimum size
-                    size = np.maximum(size, 16)
+                    # size = np.maximum(size, 16)
                     size = np.maximum(size, 26)
-
+                    
+                    # To do: enforce a larger minimum cutout size for grisms 
+                    # that need it, e.g., UVIS/G280L
+                    
                     # maximum size
                     if max_size is not None:
                         size = np.min([size, max_size])
@@ -2990,7 +2993,18 @@ class GrismFLT(object):
                     continue
 
                 try:
-                    beam = GrismDisperser(id=id, direct=thumb, segmentation=seg_thumb, xcenter=xcenter, ycenter=ycenter, origin=origin, pad=self.pad, grow=self.grism.grow, beam=b, conf=self.conf, fwcpos=self.grism.fwcpos, MW_EBV=self.grism.MW_EBV)
+                    beam = GrismDisperser(id=id,
+                                          direct=thumb, 
+                                          segmentation=seg_thumb, 
+                                          xcenter=xcenter,
+                                          ycenter=ycenter,
+                                          origin=origin,
+                                          pad=self.pad,
+                                          grow=self.grism.grow,
+                                          beam=b,
+                                          conf=self.conf,
+                                          fwcpos=self.grism.fwcpos,
+                                          MW_EBV=self.grism.MW_EBV)
                 except:
                     continue
 
@@ -3086,8 +3100,8 @@ class GrismFLT(object):
         else:
             return beams, output
 
-    def compute_full_model(self, ids=None, mags=None, mag_limit=22,
-                           store=True, verbose=False):
+
+    def compute_full_model(self, ids=None, mags=None, mag_limit=22, store=True, verbose=False, size=10, compute_size=True):
         """Compute flat-spectrum model for multiple objects.
 
         Parameters
@@ -3100,7 +3114,11 @@ class GrismFLT(object):
             magnitudes corresponding to list if `ids`.  If None, then compute
             magnitudes based on the flux in segmentation regions and
             zeropoints determined from PHOTFLAM and PHOTPLAM.
-
+        
+        size, compute_size : int, bool
+            Sizes of individual cutouts, see 
+            `~grizli.model.GrismFLT.compute_model_orders`.
+            
         Returns
         -------
         Updated model stored in `self.model` attribute.
@@ -3150,10 +3168,8 @@ class GrismFLT(object):
             iterator = zip(ids, mags)
             
         for id_i, mag_i in iterator:
-            #if verbose:
-            #    print(utils.NO_NEWLINE + 'compute model id={0:d}'.format(id_i))
-
-            self.compute_model_orders(id=id_i, compute_size=True, mag=mag_i,
+            self.compute_model_orders(id=id_i, compute_size=compute_size,
+                                      mag=mag_i, size=size,
                                       in_place=True, store=store)
 
 
@@ -3167,7 +3183,8 @@ class GrismFLT(object):
         Parameters
         ----------
         gaussian_width : float
-            Width of the Gaussian filter used with `~scipy.ndimage.gaussian_filter`.
+            Width of the Gaussian filter used with 
+            `~scipy.ndimage.gaussian_filter`.
 
         threshold : float
             Threshold, in sigma, above which to flag residuals.
