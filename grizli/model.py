@@ -389,6 +389,8 @@ class GrismDisperser(object):
         # Initialize the model arrays
         self.NX = len(self.dx)
         self.sh_beam = (self.sh[0], self.sh[1]+self.NX)
+        #deltay=dyc.max()-dyc.min()
+        #self.sh_beam = (self.sh[0]+deltay, self.sh[1]+self.NX)
 
         self.modelf = np.zeros(np.product(self.sh_beam), dtype=np.float32)
         self.model = self.modelf.reshape(self.sh_beam)
@@ -400,8 +402,10 @@ class GrismDisperser(object):
         self.x0 -= 1  # zero index!
 
         self.dxpix = self.dx - self.dx[0] + self.x0[1]  # + 1
+        pdb.set_trace()
         try:
             self.flat_index = self.idx[dyc + self.x0[0], self.dxpix]
+            #self.flat_index = self.idx[dyc, self.dxpix] #MAB
         except IndexError:
             #print('Index Error', id, dyc.dtype, self.dxpix.dtype, self.x0[0], self.xc, self.yc, self.beam, self.ytrace_beam.max(), self.ytrace_beam.min())
             raise IndexError
@@ -2523,7 +2527,7 @@ class GrismFLT(object):
         self.process_ref_file(ref_file, ref_ext=ref_ext,
                               shrink_segimage=shrink_segimage,
                               verbose=verbose)
-        pdb.set_trace()
+        
         # Blot segmentation image
         self.process_seg_file(seg_file, shrink_segimage=shrink_segimage,
                               verbose=verbose)
@@ -2997,7 +3001,7 @@ class GrismFLT(object):
 
             # Compute spectral orders ("beams")
             beams = OrderedDict()
-
+            pdb.set_trace()
             for b in beam_names:
                 # Only compute order if bright enough
                 if mag > self.conf.conf['MMAG_EXTRACT_{0}'.format(b)]:

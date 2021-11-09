@@ -579,15 +579,18 @@ class GroupFLT():
             is_cgs = False
 
         t0_pool = time.time()
+        
+        #to not run in parallel
+        jobs = [_compute_model(i, self.FLTs[i], fit_info, is_cgs, store, model_kwargs) for i in range(self.N)]
+        
+        #pool = mp.Pool(processes=cpu_count)
+        #jobs = [pool.apply_async(_compute_model, 
+        #                         (i, self.FLTs[i], fit_info, 
+        #                          is_cgs, store, model_kwargs))
+        #        for i in range(self.N)]
 
-        pool = mp.Pool(processes=cpu_count)
-        jobs = [pool.apply_async(_compute_model, 
-                                 (i, self.FLTs[i], fit_info, 
-                                  is_cgs, store, model_kwargs))
-                for i in range(self.N)]
-
-        pool.close()
-        pool.join()
+        #pool.close()
+        #pool.join()
 
         for res in jobs:
             i, model, dispersers = res.get(timeout=1)
