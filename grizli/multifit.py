@@ -505,15 +505,15 @@ class GroupFLT():
                 x = y = None
             else:
                 x, y = flt.direct.wcs.all_world2pix(np.array(center_rd)[None, :], 0).flatten()
-
+            
             status = flt.compute_model_orders(id=id, x=x, y=y, verbose=False,
                           size=size, compute_size=(size < 0),
                           mag=mag, in_place=in_place, store=store,
                           spectrum_1d=spectrum_1d, is_cgs=is_cgs,
                           get_beams=get_beams, psf_params=psf_params)
-
+            
             out_beams.append(status)
-
+        
         if get_beams:
             return out_beams
         else:
@@ -647,7 +647,6 @@ class GroupFLT():
 
         """
         beams = self.compute_single_model(id, center_rd=center_rd, size=size, store=False, get_beams=[beam_id])
-
         out_beams = []
         for flt, beam in zip(self.FLTs, beams):
             try:
@@ -659,7 +658,7 @@ class GroupFLT():
             except:
                 #print('Except: get_beams')
                 continue
-
+            pdb.set_trace()
             valid = (out_beam.grism['SCI'] != 0)
             valid &= out_beam.fit_mask.reshape(out_beam.sh)
             hasdata = (valid.sum(axis=0) > 0).sum()

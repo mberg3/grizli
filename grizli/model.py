@@ -347,7 +347,7 @@ class GrismDisperser(object):
 
         # xoff = 0. # suggested by ACS
         # xoff = -2.5 # test
-
+        
         self.xoff = xoff
         self.ytrace_beam, self.lam_beam = self.conf.get_beam_trace(
                             x=(self.xc+self.xcenter-self.pad)/self.grow,
@@ -389,8 +389,8 @@ class GrismDisperser(object):
         # Initialize the model arrays
         self.NX = len(self.dx)
         self.sh_beam = (self.sh[0], self.sh[1]+self.NX)
-        #deltay=dyc.max()-dyc.min()
-        #self.sh_beam = (self.sh[0]+deltay, self.sh[1]+self.NX)
+        #deltay=dyc.max()-dyc.min() #MAB
+        #self.sh_beam = (self.sh[0]+deltay, self.sh[1]+self.NX) #MAB
 
         self.modelf = np.zeros(np.product(self.sh_beam), dtype=np.float32)
         self.model = self.modelf.reshape(self.sh_beam)
@@ -442,7 +442,7 @@ class GrismDisperser(object):
                             self.origin[1] + self.dxfull[-1] + self.x0[1]+1)
 
         self.sly_parent = slice(self.origin[0], self.origin[0] + self.sh[0])
-
+        
         # print 'XXX wavelength: %s %s %s' %(self.lam[-5:], self.lam_beam[-5:], dl[-5:])
 
     def add_ytrace_offset(self, yoffset):
@@ -558,7 +558,7 @@ class GrismDisperser(object):
         """
         from .utils_c import disperse
         from .utils_c import interp
-
+        
         if id is None:
             id = self.id
             total_flux = self.total_flux
@@ -574,20 +574,21 @@ class GrismDisperser(object):
             scale = self.scale
         else:
             self.scale = scale
-
+        
         if spectrum_1d is not None:
             xspec, yspec = spectrum_1d
             scale_spec = self.sensitivity_beam*0.
             int_func = interp.interp_conserve_c
+            #pdb.set_trace() #not all files pass through this?? check the c code function
             scale_spec[self.lam_sort] = int_func(self.lam_beam[self.lam_sort],
                                                 xspec, yspec)*scale
         else:
             scale_spec = scale
-
+        
         self.is_cgs = is_cgs
         if is_cgs:
             scale_spec /= total_flux
-
+        
         # Output data, fastest is to compute in place but doesn't zero-out
         # previous result
         if in_place:
@@ -596,7 +597,7 @@ class GrismDisperser(object):
         else:
             if modelf is None:
                 modelf = self.modelf*(1-reset)
-
+        
         # Optionally use a different direct image
         if thumb is None:
             thumb = self.direct
@@ -606,7 +607,7 @@ class GrismDisperser(object):
 Error: `thumb` must have the same dimensions as the direct image! ({0:d},{1:d})
                 """.format(self.sh[0], self.sh[1]))
                 return False
-
+        
         # Now compute the dispersed spectrum using the C helper
         if apply_sensitivity:
             sens_curve = self.sensitivity_beam
@@ -614,7 +615,7 @@ Error: `thumb` must have the same dimensions as the direct image! ({0:d},{1:d})
             sens_curve = 1.
 
         nonz = (sens_curve*scale_spec) != 0
-
+        
         if (nonz.sum() > 0) & (id in self.seg_ids):
             status = disperse.disperse_grism_object(thumb, self.seg,
                                  np.float32(id),
@@ -626,7 +627,7 @@ Error: `thumb` must have the same dimensions as the direct image! ({0:d},{1:d})
                                  np.array(self.sh, dtype=np.int64),
                                  self.x0,
                                  np.array(self.sh_beam, dtype=np.int64))
-
+        
         #print('yyy PAM')
         modelf /= self.PAM_value  # = self.get_PAM_value()
 
@@ -830,7 +831,7 @@ Error: `thumb` must have the same dimensions as the direct image! ({0:d},{1:d})
 
             okx = (xpix >= 0) & (xpix < sh[1])
             oky = (ypix >= 0) & (ypix < sh[1])
-
+            
             if (okx.sum() == 0) | (oky.sum() == 0):
                 return False
 
@@ -2865,7 +2866,7 @@ class GrismFLT(object):
         else:
             object_in_model = False
             beams = None
-
+        
         if self.direct.data['REF'] is None:
             ext = 'SCI'
         else:
@@ -2905,7 +2906,7 @@ class GrismFLT(object):
                     xcat = x
                 if y is not None:
                     ycat = y
-
+            
             if (compute_size) | (x is None) | (y is None) | (size is None):
                 # Get the array indices of the segmentation region
                 out = disperse.compute_segmentation_limits(self.seg, id,
@@ -2917,7 +2918,7 @@ class GrismFLT(object):
                     if verbose:
                         print('ID {0:d} not found in segmentation image'.format(id))
                     return False
-
+                
                 # Object won't disperse spectrum onto the grism image
                 if ((ymax < self.pad-5) |
                      (ymin > self.direct.sh[0]-self.pad+5) |
@@ -2978,7 +2979,7 @@ class GrismFLT(object):
                 if verbose:
                     print(f'ID {id} not found in segmentation image')
                 return False
-
+            
             # # Get precomputed dispersers
             # beams, old_spectrum_1d, old_cgs = None, None, False
             # if object_in_model:
@@ -3001,7 +3002,7 @@ class GrismFLT(object):
 
             # Compute spectral orders ("beams")
             beams = OrderedDict()
-            pdb.set_trace()
+            
             for b in beam_names:
                 # Only compute order if bright enough
                 if mag > self.conf.conf['MMAG_EXTRACT_{0}'.format(b)]:
@@ -3020,6 +3021,7 @@ class GrismFLT(object):
                                           conf=self.conf,
                                           fwcpos=self.grism.fwcpos,
                                           MW_EBV=self.grism.MW_EBV)
+                    
                 except:
                     continue
 
@@ -3038,7 +3040,7 @@ class GrismFLT(object):
                                      psf_filter=psf_filter, yoff=0.)
 
                 beams[b] = beam
-
+        
         # Compute old model
         if object_in_model:
             for b in beams:
@@ -3051,13 +3053,13 @@ class GrismFLT(object):
                 else:
                     beam.compute_model(spectrum_1d=old_spectrum_1d,
                                        is_cgs=old_cgs)
-
+        
         if get_beams:
             out_beams = OrderedDict()
             for b in beam_names:
                 out_beams[b] = beams[b]
             return out_beams
-
+        
         if in_place:
             # Update the internal model attribute
             output = self.model
@@ -3071,7 +3073,7 @@ class GrismFLT(object):
         else:
             # Create a fresh array
             output = np.zeros_like(self.model)
-
+        
         # if in_place:
         #     ### Update the internal model attribute
         #     output = self.model
@@ -3085,7 +3087,7 @@ class GrismFLT(object):
                 psf_filter = self.direct.filter
             else:
                 psf_filter = self.direct.ref_filter
-
+        
         # Loop through orders and add to the full model array, in-place or
         # a separate image
         for b in beams:
@@ -3111,7 +3113,7 @@ class GrismFLT(object):
 
             # Add in new model
             beam.add_to_full_image(beam.model, output)
-
+        
         if in_place:
             return True
         else:
@@ -3879,7 +3881,7 @@ class BeamCutout(object):
         # self.min_mask = min_mask
         # self.min_sens = min_sens
         # self.mask_resid = mask_resid
-
+        
         self._parse_from_data(**self._parse_params)
 
     def _parse_from_data(self, contam_sn_mask=[10, 3], min_mask=0.01,
@@ -3898,12 +3900,12 @@ class BeamCutout(object):
         self.ivar[self.mask] = 0
 
         self.thumbs = {}
-
+        
         #self.compute_model = self.beam.compute_model
         #self.model = self.beam.model
         self.modelf = self.beam.modelf  # .flatten()
         self.model = self.beam.modelf.reshape(self.beam.sh_beam)
-
+        
         # Attributes
         self.size = self.modelf.size
         self.wave = self.beam.lam
@@ -3925,16 +3927,17 @@ class BeamCutout(object):
         self.fit_mask = (~self.mask.flatten()) & (self.ivar.flatten() != 0)
         self.fit_mask &= (self.flat_flam > min_mask*self.flat_flam.max())
         #self.fit_mask &= (self.flat_flam > 3*self.contam.flatten())
-
+        
         # Apply minimum sensitivity mask
         self.sens_mask = 1.
         if min_sens > 0:
             flux_min_sens = (self.beam.sensitivity <
                              min_sens*self.beam.sensitivity.max())*1.
-
+            
             if flux_min_sens.sum() > 0:
                 test_spec = [self.beam.lam, flux_min_sens]
                 if seg_ids is None:
+                    #segmentation fault 11 in next line
                     flat_sens = self.compute_model(in_place=False,
                                                    is_cgs=True,
                                   spectrum_1d=test_spec)
@@ -3952,12 +3955,12 @@ class BeamCutout(object):
                 is_masked = (flat_sens.reshape(self.sh) > 0).sum(axis=0)
                 self.sens_mask = (np.dot(np.ones((self.sh[0], 1)), is_masked[None, :]) == 0).flatten()
                 self.fit_mask &= self.sens_mask
-
+        pdb.st_trace()
         # Flat versions of sci/ivar arrays
         self.scif = (self.grism.data['SCI'] - self.contam).flatten()
         self.ivarf = self.ivar.flatten()
         self.wavef = np.dot(np.ones((self.sh[0], 1)), self.wave[None, :]).flatten()
-
+        pdb.set_trace()
         # Mask large residuals where throughput is low
         if mask_resid:
             resid = np.abs(self.scif - self.flat_flam)*np.sqrt(self.ivarf)
@@ -4298,7 +4301,7 @@ class BeamCutout(object):
         if reset_inplace:
             self.modelf = self.beam.modelf  # .flatten()
             self.model = self.beam.modelf.reshape(self.beam.sh_beam)
-
+        
         return result
 
     def get_wavelength_wcs(self, wavelength=1.3e4):
