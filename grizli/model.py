@@ -389,9 +389,13 @@ class GrismDisperser(object):
         # Initialize the model arrays
         self.NX = len(self.dx)
         self.sh_beam = (self.sh[0], self.sh[1]+self.NX)
-        #deltay=dyc.max()-dyc.min() #MAB
-        #self.sh_beam = (self.sh[0]+deltay, self.sh[1]+self.NX) #MAB
-
+        
+        #Added by MAB to deal with UVIS trace
+        if 'G280' in self.conf.conf_file:
+            #deltay=dyc.max()-dyc.min() #MAB
+            deltay=dyc.max() #MAB yep this one
+            self.sh_beam = (self.sh[0]+deltay, self.sh[1]+self.NX) #MAB
+        
         self.modelf = np.zeros(np.product(self.sh_beam), dtype=np.float32)
         self.model = self.modelf.reshape(self.sh_beam)
         self.idx = np.arange(self.modelf.size,
@@ -402,10 +406,9 @@ class GrismDisperser(object):
         self.x0 -= 1  # zero index!
 
         self.dxpix = self.dx - self.dx[0] + self.x0[1]  # + 1
-        pdb.set_trace()
         try:
             self.flat_index = self.idx[dyc + self.x0[0], self.dxpix]
-            #self.flat_index = self.idx[dyc, self.dxpix] #MAB
+            #self.flat_index = self.idx[dyc, self.dxpix] #MAB --> this is definitely wrong!
         except IndexError:
             #print('Index Error', id, dyc.dtype, self.dxpix.dtype, self.x0[0], self.xc, self.yc, self.beam, self.ytrace_beam.max(), self.ytrace_beam.min())
             raise IndexError
@@ -443,6 +446,10 @@ class GrismDisperser(object):
 
         self.sly_parent = slice(self.origin[0], self.origin[0] + self.sh[0])
         
+        #Added by MAB. Slice size is now different too
+        if 'G280' in self.conf.conf_file:
+            self.sly_parent = slice(self.origin[0], self.origin[0] + self.sh[0]+deltay)
+        #pdb.set_trace()
         # print 'XXX wavelength: %s %s %s' %(self.lam[-5:], self.lam_beam[-5:], dl[-5:])
 
     def add_ytrace_offset(self, yoffset):
@@ -579,7 +586,6 @@ class GrismDisperser(object):
             xspec, yspec = spectrum_1d
             scale_spec = self.sensitivity_beam*0.
             int_func = interp.interp_conserve_c
-            #pdb.set_trace() #not all files pass through this?? check the c code function
             scale_spec[self.lam_sort] = int_func(self.lam_beam[self.lam_sort],
                                                 xspec, yspec)*scale
         else:
@@ -630,7 +636,7 @@ Error: `thumb` must have the same dimensions as the direct image! ({0:d},{1:d})
         
         #print('yyy PAM')
         modelf /= self.PAM_value  # = self.get_PAM_value()
-
+        pdb.set_trace()
         if not in_place:
             return modelf
         else:
@@ -3113,7 +3119,7 @@ class GrismFLT(object):
 
             # Add in new model
             beam.add_to_full_image(beam.model, output)
-        
+        pdb.set_trace()
         if in_place:
             return True
         else:
