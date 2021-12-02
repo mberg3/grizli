@@ -636,7 +636,7 @@ Error: `thumb` must have the same dimensions as the direct image! ({0:d},{1:d})
         
         #print('yyy PAM')
         modelf /= self.PAM_value  # = self.get_PAM_value()
-        pdb.set_trace()
+        
         if not in_place:
             return modelf
         else:
@@ -3119,7 +3119,7 @@ class GrismFLT(object):
 
             # Add in new model
             beam.add_to_full_image(beam.model, output)
-        pdb.set_trace()
+        
         if in_place:
             return True
         else:
@@ -3955,18 +3955,17 @@ class BeamCutout(object):
                             flat_sens = f_i
                         else:
                             flat_sens += f_i
-
                 # self.sens_mask = flat_sens == 0
                 # Make mask along columns
                 is_masked = (flat_sens.reshape(self.sh) > 0).sum(axis=0)
                 self.sens_mask = (np.dot(np.ones((self.sh[0], 1)), is_masked[None, :]) == 0).flatten()
                 self.fit_mask &= self.sens_mask
-        pdb.st_trace()
+        
         # Flat versions of sci/ivar arrays
         self.scif = (self.grism.data['SCI'] - self.contam).flatten()
         self.ivarf = self.ivar.flatten()
         self.wavef = np.dot(np.ones((self.sh[0], 1)), self.wave[None, :]).flatten()
-        pdb.set_trace()
+        
         # Mask large residuals where throughput is low
         if mask_resid:
             resid = np.abs(self.scif - self.flat_flam)*np.sqrt(self.ivarf)
@@ -3976,7 +3975,7 @@ class BeamCutout(object):
             self.fit_mask *= ~bad_resid
         else:
             self.bad_resid = np.zeros_like(self.fit_mask)
-
+        
         # Mask very contaminated
         contam_mask = ((self.contam*np.sqrt(self.ivar) > contam_sn_mask[0]) &
                       (self.model*np.sqrt(self.ivar) < contam_sn_mask[1]))
@@ -3984,6 +3983,7 @@ class BeamCutout(object):
         self.contam_mask = ~nd.maximum_filter(contam_mask, size=5).flatten()
         self.poly_order = None
         # self.init_poly_coeffs(poly_order=1)
+        
 
     def init_from_input(self, flt, beam, conf=None, get_slice_header=True):
         """Initialize from data objects

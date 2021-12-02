@@ -580,17 +580,17 @@ class GroupFLT():
 
         t0_pool = time.time()
         
-        #to not run in parallel
-        jobs = [_compute_model(i, self.FLTs[i], fit_info, is_cgs, store, model_kwargs) for i in range(self.N)]
+        #to not run in parallel MAB
+        #jobs = [_compute_model(i, self.FLTs[i], fit_info, is_cgs, store, model_kwargs) for i in range(self.N)]
         
-        #pool = mp.Pool(processes=cpu_count)
-        #jobs = [pool.apply_async(_compute_model, 
-        #                         (i, self.FLTs[i], fit_info, 
-        #                          is_cgs, store, model_kwargs))
-        #        for i in range(self.N)]
+        pool = mp.Pool(processes=cpu_count)
+        jobs = [pool.apply_async(_compute_model, 
+                                 (i, self.FLTs[i], fit_info, 
+                                  is_cgs, store, model_kwargs))
+                for i in range(self.N)]
 
-        #pool.close()
-        #pool.join()
+        pool.close()
+        pool.join()
 
         for res in jobs:
             i, model, dispersers = res.get(timeout=1)
@@ -658,7 +658,7 @@ class GroupFLT():
             except:
                 #print('Except: get_beams')
                 continue
-            pdb.set_trace()
+            
             valid = (out_beam.grism['SCI'] != 0)
             valid &= out_beam.fit_mask.reshape(out_beam.sh)
             hasdata = (valid.sum(axis=0) > 0).sum()
@@ -671,7 +671,7 @@ class GroupFLT():
 
             if out_beam.fit_mask.sum() < min_valid_pix:
                 continue
-
+            
             out_beams.append(out_beam)
 
         return out_beams
@@ -3700,7 +3700,7 @@ class MultiBeam(GroupFitter):
 
         return chi2/self.DoF
 
-    def drizzle_grisms_and_PAs(self, size=10, fcontam=0, flambda=False, scale=1, pixfrac=0.5, kernel='square', usewcs=False, tfit=None, diff=True, grism_list=['G800L', 'G102', 'G141', 'F090W', 'F115W', 'F150W', 'F200W', 'F356W', 'F410M', 'F444W'], mask_segmentation=True, reset_model=True, make_figure=True, fig_args=dict(mask_segmentation=True, average_only=False, scale_size=1, cmap='viridis_r'), **kwargs):
+    def drizzle_grisms_and_PAs(self, size=10, fcontam=0, flambda=False, scale=1, pixfrac=0.5, kernel='square', usewcs=False, tfit=None, diff=True, grism_list=['G800L', 'G102', 'G141', 'F090W', 'F115W', 'F150W', 'F200W', 'F356W', 'F410M', 'F444W', 'G280'], mask_segmentation=True, reset_model=True, make_figure=True, fig_args=dict(mask_segmentation=True, average_only=False, scale_size=1, cmap='viridis_r'), **kwargs):
         """Make figure showing spectra at different orients/grisms
 
         TBD
