@@ -1126,8 +1126,6 @@ def update_wcs_fits_log(file, wcs_ref, xyscale=[0, 0, 0, 1], initialize=True, re
     else:
         hdu = pyfits.HDUList([pyfits.PrimaryHDU()])
 
-    #pdb.set_trace()
-
     hdu.append(new_hdu)
     hdu.writeto(wcs_logfile, overwrite=True, output_verify='fix')
 
@@ -2999,9 +2997,20 @@ def process_direct_grism_visit(direct={},
         # asn.write()
 
     if isACS:
-        bits = 64+32+256
-        driz_cr_snr = '3.5 3.0'
-        driz_cr_scale = '1.2 0.7'
+    	#MAB
+        flc = pyfits.open(direct['files'][0])
+        if flc[0].header['INSTRUME'] != 'ACS':
+            #values for UVIS
+            bits = 16+64+256
+            driz_cr_snr = '40.0 35.0'
+            driz_cr_scale = '1.2 0.7'
+            drizzle_params['combine_type']='median'
+            drizzle_params['combine_nhigh']=2
+        else:
+            bits = 64+32+256
+            driz_cr_snr = '3.5 3.0'
+            driz_cr_scale = '1.2 0.7'
+        flc.close()
     elif isWFPC2:
         bits = 64+32
         driz_cr_snr = '3.5 3.0'
@@ -3022,7 +3031,7 @@ def process_direct_grism_visit(direct={},
     if 'bits' in drizzle_params:
         bits = drizzle_params['bits']
         drizzle_params.pop('bits')
-
+    
     # Relax CR rejection for first-pass ACS
     if isACS:
         driz_cr_snr_first = '15. 10.0'
@@ -3030,7 +3039,7 @@ def process_direct_grism_visit(direct={},
     else:
         driz_cr_snr_first = driz_cr_snr
         driz_cr_scale_first = driz_cr_scale
-
+	
     if not skip_direct:
         if (not isACS) & (not isWFPC2) & run_tweak_align:
             # if run_tweak_align:
@@ -3072,7 +3081,7 @@ def process_direct_grism_visit(direct={},
             file = '{0}_wcs.{1}'.format(direct['product'], ext)
             if os.path.exists(file):
                 os.remove(file)
-
+		
         # First drizzle
         if len(direct['files']) > 1:
             AstroDrizzle(direct['files'], output=direct['product'],
@@ -3092,7 +3101,7 @@ def process_direct_grism_visit(direct={},
                          median=False, blot=False, driz_cr=False,
                          driz_cr_corr=False, driz_combine=True,
                          build=False, final_wht_type='IVM', **drizzle_params)
-
+        
         # Now do tweak_align for ACS
         if (isACS) & run_tweak_align & (len(direct['files']) > 1):
             tweak_align(direct_group=direct, grism_group=grism,
@@ -3108,7 +3117,7 @@ def process_direct_grism_visit(direct={},
                              median=False, blot=False, driz_cr=False,
                              driz_cr_corr=False, driz_combine=True,
                              final_bits=bits, coeffs=True, build=False,
-                             final_wht_type='IVM', resetbits=0)
+                             final_wht_type='IVM', resetbits=0, **drizzle_params) #MAB added **drizzle_params
 
         # Make catalog & segmentation image
         if align_thresh is None:
@@ -3123,7 +3132,6 @@ def process_direct_grism_visit(direct={},
         cat = make_SEP_catalog(root=direct['product'], threshold=thresh)
 
         #all objects are giving inf as mag_auto so its kicking back FALSE in align_drizzled_images
-
         if radec == 'self':
             okmag = ((cat['MAG_AUTO'] > align_mag_limits[0]) &
                     (cat['MAG_AUTO'] < align_mag_limits[1]))
@@ -3180,7 +3188,7 @@ def process_direct_grism_visit(direct={},
                                       ref_border=align_ref_border)
 
         orig_wcs, drz_wcs, out_shift, out_rot, out_scale = result
-
+        
         # Update direct FLT WCS
         for file in direct['files']:
             xyscale = [out_shift[0], out_shift[1], out_rot, out_scale]
@@ -3223,7 +3231,7 @@ def process_direct_grism_visit(direct={},
                 pixfrac = 1.0
             else:
                 pixfrac = 0.8
-
+            
             AstroDrizzle(direct['files'], output=direct['product'],
                          clean=True, final_pixfrac=pixfrac,
                          context=(isACS | isWFPC2),
@@ -3683,7 +3691,7 @@ def tweak_flt(files=[], max_dist=0.4, threshold=3, verbose=True, tristars_kwargs
         
     """
     import scipy.spatial
-
+    
     try:
         import tristars
         from tristars.match import match_catalog_tri, match_diagnostic_plot
