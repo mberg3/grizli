@@ -3002,10 +3002,11 @@ def process_direct_grism_visit(direct={},
         if flc[0].header['INSTRUME'] != 'ACS':
             #values for UVIS
             bits = 16+64+256
-            driz_cr_snr = '40.0 35.0'
-            driz_cr_scale = '1.2 0.7'
-            drizzle_params['combine_type']='median'
-            drizzle_params['combine_nhigh']=2
+            #driz_cr_snr = '20.0 15.0' #for final drc #represents the central CR pixel SNR and then the lower value to get the rest of the ray
+            driz_cr_snr = '3.5 3.0' #for final cr reject #represents the central CR pixel SNR and then the lower value to get the rest of the ray
+            driz_cr_scale = '1.2 0.7' #leaving as default values
+            drizzle_params['combine_type']='median' #minmed is default, but not to be used for more than 4 files to combine
+            drizzle_params['combine_nhigh']=2 #honestly not sure what to set this to, but it said more than 1
         else:
             bits = 64+32+256
             driz_cr_snr = '3.5 3.0'
@@ -3319,7 +3320,7 @@ def process_direct_grism_visit(direct={},
                  blot=gris_cr_corr, driz_cr=gris_cr_corr, driz_cr_corr=gris_cr_corr,
                  driz_cr_snr=driz_cr_snr, driz_cr_scale=driz_cr_scale,
                  driz_combine=True, final_bits=bits, coeffs=True,
-                 resetbits=4096, build=False, final_wht_type='IVM')
+                 resetbits=4096, build=False, final_wht_type='IVM', **drizzle_params) #MAB added **drizzle_params
 
     # Subtract grism sky
     #there is no sky file for UVIS/G280 (don't need to worry about contamination)
@@ -3360,14 +3361,14 @@ def process_direct_grism_visit(direct={},
     else:
         pixfrac = 0.8
 
-    AstroDrizzle(grism['files'], output=grism['product'], clean=True,
+    AstroDrizzle(grism['files'], output=grism['product'], clean=False, #clean=True, #MAB to check individual cr files
                  context=isACS, preserve=False, skysub=True, skyfile=skyfile,
                  driz_separate=gris_cr_corr, driz_sep_wcs=gris_cr_corr, median=gris_cr_corr,
                  blot=gris_cr_corr, driz_cr=gris_cr_corr, driz_cr_corr=gris_cr_corr,
                  driz_cr_snr=driz_cr_snr, driz_cr_scale=driz_cr_scale,
                  driz_combine=True, driz_sep_bits=bits, final_bits=bits,
                  coeffs=True, resetbits=4096, final_pixfrac=pixfrac,
-                 build=False, final_wht_type='IVM')
+                 build=False, final_wht_type='IVM', **drizzle_params) #MAB added **drizzle_params
 
     clean_drizzle(grism['product'])
 
